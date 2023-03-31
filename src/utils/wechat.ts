@@ -28,8 +28,8 @@ export const getJsApiTicket = async (access_token: string): Promise<IJsApiTicket
 }
 
 export const getSignature = (url: string, ticket: string) => {
-  const noncestr = Math.random().toString(16).slice(2);
-  const timestamp = Date.now();
+  const noncestr = '1234' || Math.random().toString(16).slice(2);
+  const timestamp = 1234 || Date.now();
   const str = `jsapi_ticket=${ticket}&noncestr=${noncestr}&timestamp=${timestamp}&url=${url}`;
   const signature = createHash('sha1').update(str, 'utf-8').digest('hex');
   return {
