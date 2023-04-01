@@ -1,6 +1,5 @@
-import { Inject, Controller, Get, Query, Post, Body } from '@midwayjs/core';
+import { Inject, Controller, Post, Body } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
-import { UserService } from '../service/user.service';
 import { RedisService } from '@midwayjs/redis';
 import { getAccessToken, getJsApiTicket, getSignature } from '../utils/wechat';
 
@@ -12,12 +11,8 @@ export class APIController {
   @Inject()
   redisService: RedisService;
 
-  @Inject()
-  userService: UserService;
-
   @Post('/init')
   async init(@Body('url') url: string) {
-    console.log(this.ctx.req.headers.origin + url)
     let ticket = await this.redisService.get('zfxy-ticket')
     if(!ticket) {
       const AccessToken = await getAccessToken();
@@ -28,12 +23,8 @@ export class APIController {
         this.redisService.set('zfxy-ticket', data.ticket, 'EX', data.expires_in)
       }
     }
+    // const info = await this.redisService.get('zfxy-adminer-' + this.ctx.adminer.id);
+    // sendMessage()
     return getSignature(this.ctx.req.headers.origin + url, ticket)
-  }
-
-  @Get('/get_user')
-  async getUser(@Query('uid') uid) {
-    const user = await this.userService.getUser({ uid });
-    return { success: true, message: 'OK', data: user };
   }
 }

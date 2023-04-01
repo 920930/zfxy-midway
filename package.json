@@ -9,10 +9,15 @@
     "@midwayjs/cross-domain": "^3.11.0",
     "@midwayjs/decorator": "^3.0.0",
     "@midwayjs/info": "^3.0.0",
+    "@midwayjs/jwt": "3",
     "@midwayjs/koa": "^3.0.0",
     "@midwayjs/logger": "^2.14.0",
     "@midwayjs/redis": "3",
-    "@midwayjs/validate": "^3.0.0"
+    "@midwayjs/sequelize": "3",
+    "@midwayjs/validate": "^3.0.0",
+    "mysql2": "^3.2.0",
+    "sequelize": "^6.30.0",
+    "sequelize-typescript": "^2.1.5"
   },
   "devDependencies": {
     "@midwayjs/cli": "^2.0.0",
