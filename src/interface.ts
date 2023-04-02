@@ -14,3 +14,14 @@ export interface IAuthLogin {
   password: string;
   code: string
 }
+
+export type TRedisInfo = {
+  id: number;
+  openid: string;
+  now: number;
+}
+
+export type TRedisToken = {
+  access: string;
+  ticket: string;
+}

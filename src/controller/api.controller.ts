@@ -1,10 +1,14 @@
-import { Inject, Controller, Post, Body } from '@midwayjs/core';
-import { Context } from '@midwayjs/koa';
+import { Inject, Controller, Post, Body, App } from '@midwayjs/core';
+import { Context, Application } from '@midwayjs/koa';
 import { RedisService } from '@midwayjs/redis';
-import { getAccessToken, getJsApiTicket, getSignature } from '../utils/wechat';
+import { getJsApiTicket, getSignature, getAccessToken } from '../utils/wechat';
+import type { TRedisToken } from '../interface';
 
 @Controller('/api')
 export class APIController {
+  @App()
+  app: Application;
+
   @Inject()
   ctx: Context;
 
@@ -13,18 +17,14 @@ export class APIController {
 
   @Post('/init')
   async init(@Body('url') url: string) {
-    let ticket = await this.redisService.get('zfxy-ticket')
+    let ticket = await this.redisService.get('zfxy-token')
     if(!ticket) {
-      const AccessToken = await getAccessToken();
+      const AccessToken = await getAccessToken(this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
       const data = await getJsApiTicket(AccessToken.access_token)
-      if(data.errcode === 0) {
-        ticket = data.ticket;
-        this.redisService.set('zfxy-access', AccessToken.access_token, 'EX', AccessToken.expires_in)
-        this.redisService.set('zfxy-ticket', data.ticket, 'EX', data.expires_in)
-      }
+      this.redisService.set('zfxy-token', JSON.stringify({access: AccessToken.access_token, ticket}), 'EX', AccessToken.expires_in)
+      return getSignature(this.ctx.req.headers.origin + url, data.ticket)
     }
-    // const info = await this.redisService.get('zfxy-adminer-' + this.ctx.adminer.id);
-    // sendMessage()
-    return getSignature(this.ctx.req.headers.origin + url, ticket)
+    const token: TRedisToken = JSON.parse(ticket);
+    return getSignature(this.ctx.req.headers.origin + url, token.ticket)
   }
 }

@@ -5,7 +5,8 @@ import { CustomHttpError } from '../error/custom.error';
 import { RedisService } from '@midwayjs/redis';
 import { JwtService } from '@midwayjs/jwt';
 import { Application } from '@midwayjs/koa';
-import { getWechatUserAccessToken, getWechatUserInfo } from '../utils/wechat';
+import { getWechatUserAccessToken } from '../utils/wechat';
+import { md5 } from '../utils';
 
 @Provide()
 export class AuthService {
@@ -27,28 +28,27 @@ export class AuthService {
       }
     })
     if(!adminer) throw new CustomHttpError('此账户不存在或禁用')
-
+    if(md5(info.password) != adminer.password) throw new CustomHttpError('账户密码错误')
+    const now = Date.now();
+    // 通过code调用获取用户openid
     if(!adminer.openid) {
-      // 通过code调用获取用户openid
-      const data = await getWechatUserAccessToken(info.code, this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
-      const user = await getWechatUserInfo(data.access_token, data.openid);
-      adminer.openid = data.openid;
-      adminer.avatar = user.headimgurl;
-      adminer.save();
-      // 这里设置的时间为：中间件判断redis用户是否存在，如果不存在就表示refresh-token失效，'EX' 单位秒
-      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({id: adminer.id, openid: data.openid}), 'EX', this.app.getConfig('redis.client.end'));
-      this.redisService.set(`zfxy-adminer-${adminer.id}-access_token`, data.access_token, 'EX', data.expires_in);
+      try {
+        const ret = await getWechatUserAccessToken(info.code, this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
+        // 代表refre-token，过期需要重新登录
+        this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({id: adminer.id, openid: ret.openid, now}), 'EX', this.app.getConfig('redis.client.end'));
+        // const user = await getWechatUserInfo(ret.access_token, ret.openid);
+        adminer.openid = ret.openid;
+        // !adminer.avatar && (adminer.avatar = user.headimgurl);
+        adminer.save();
+      } catch (err) {
+        throw new CustomHttpError(err.errmsg)
+      }
     } else {
-      // 这里设置的时间为：中间件判断redis用户是否存在，如果不存在就表示refresh-token失效，'EX' 单位秒
-      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({id: adminer.id, openid: adminer.openid}), 'EX', this.app.getConfig('redis.client.end'));
-      this.redisService.get(`zfxy-adminer-${adminer.id}-access_token`).then(async ret => {
-        if(!ret) {
-          const data = await getWechatUserAccessToken(info.code, this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
-          this.redisService.set(`zfxy-adminer-${adminer.id}-access_token`, data.access_token, 'EX', data.expires_in);
-        }
-      })
+      // 代表refre-token，过期需要重新登录
+      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({id: adminer.id, openid: adminer.openid, now}), 'EX', this.app.getConfig('redis.client.end'));
     }
-    const token = this.jwtService.signSync({id: adminer.id});
+
+    const token = this.jwtService.signSync({id: adminer.id, now});
     return {
       token: `Bearer ${token}`,
     };

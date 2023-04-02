@@ -17,7 +17,7 @@ export default {
       host: "127.0.0.1", // Redis host
       password: "",
       // db: 0,
-      end: 60 * 60 * 24 * 14 // 14天过期
+      end: 60 * 60 * 24 * 30 // 30天过期
     },
   },
   jwt: {
