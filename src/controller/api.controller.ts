@@ -17,14 +17,14 @@ export class APIController {
 
   @Post('/init')
   async init(@Body('url') url: string) {
-    let ticket = await this.redisService.get('zfxy-token')
-    if(!ticket) {
+    let tokens = await this.redisService.get('zfxy-token')
+    if(!tokens) {
       const AccessToken = await getAccessToken(this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
       const data = await getJsApiTicket(AccessToken.access_token)
-      this.redisService.set('zfxy-token', JSON.stringify({access: AccessToken.access_token, ticket}), 'EX', AccessToken.expires_in)
+      this.redisService.set('zfxy-token', JSON.stringify({access: AccessToken.access_token, ticket: data.ticket}), 'EX', AccessToken.expires_in)
       return getSignature(this.ctx.req.headers.origin + url, data.ticket)
     }
-    const token: TRedisToken = JSON.parse(ticket);
+    const token: TRedisToken = JSON.parse(tokens);
     return getSignature(this.ctx.req.headers.origin + url, token.ticket)
   }
 }

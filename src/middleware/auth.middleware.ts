@@ -82,6 +82,7 @@ export class AuthMiddleware {
 
   // 配置忽略鉴权的路由地址
   public match(ctx: Context): boolean {
-    return !ctx.path.includes('/api/login');
+    const routes = ['/api/login', '/api/wechat']
+    return !routes.some(item => ctx.path.includes(item))
   }
 }

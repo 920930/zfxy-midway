@@ -22,7 +22,7 @@ export default {
   },
   jwt: {
     secret: '415254f3-6052-4e83-9bd1-2318850ad61b',
-    expiresIn: '10s',
+    expiresIn: '2h',
   },
   sequelize: {
     dataSource: {

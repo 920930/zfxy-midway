@@ -20,6 +20,7 @@ export class AuthService {
   @App()
   app: Application;
 
+  // 账户密码登录
   async login(info: IAuthLogin) {
     const adminer = await Adminer.findOne({
       where: {
@@ -52,5 +53,30 @@ export class AuthService {
     return {
       token: `Bearer ${token}`,
     };
+  }
+
+  // 微信登录
+  async wechat(code: string){
+    try {
+      const ret = await getWechatUserAccessToken(code, this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
+      // 数据库查询openid
+      const adminer = await Adminer.findOne({
+        where: {
+          openid: ret.openid,
+          state: 1
+        }
+      })
+      // 第一次登录，数据库只有手机号，没有openid
+      if(!adminer) throw new CustomHttpError('第一次登录请使用账户密码登录')
+      const now = Date.now();
+      // 代表refre-token，过期需要重新登录
+      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({id: adminer.id, openid: ret.openid, now}), 'EX', this.app.getConfig('redis.client.end'));
+      const token = this.jwtService.signSync({id: adminer.id, now});
+      return {
+        token: `Bearer ${token}`,
+      };
+    } catch (err) {
+      throw new CustomHttpError(err.errmsg)
+    }
   }
 }
