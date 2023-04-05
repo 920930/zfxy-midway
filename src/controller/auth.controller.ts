@@ -20,4 +20,10 @@ export class AuthController {
   async wechat(@Query('code') code: string){
     return this.authService.wechat(code)
   }
+
+  @Get('/logout')
+  async logout(){
+    this.authService.logout(this.ctx.adminer.id);
+    return 'logout ok'
+  }
 }

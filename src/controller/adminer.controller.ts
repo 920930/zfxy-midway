@@ -1,18 +1,17 @@
 import { Controller, Inject, Get } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
-import { RedisService } from '@midwayjs/redis';
-// import { getAccessToken, getJsApiTicket, getSignature } from '../utils/wechat';
+import { AdminerService } from '../service/adminer.service';
 
-@Controller('/api')
+@Controller('/api/adminer')
 export class AdminerController {
   @Inject()
   ctx: Context;
 
   @Inject()
-  redisService: RedisService;
+  adminerService: AdminerService;
 
-  @Get('/')
-  async home(): Promise<string> {
-    return 'Hello Midwayjs!';
+  @Get('/me')
+  async me() {
+    return this.adminerService.me(this.ctx.adminer.id);
   }
 }

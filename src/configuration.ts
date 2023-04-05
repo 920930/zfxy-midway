@@ -38,13 +38,14 @@ export class ContainerLifeCycle {
     this.app.useFilter([DefaultErrorFilter]);
   }
   // 初始化数据
-  async onServerReady(){
+  async onServerReady() {
     Adminer.findOrCreate({
       where: { id: 1 },
       defaults: {
         name: '张浩刚',
         phone: '18081990075',
         password: '123456',
+        roleId: 1
       }
     })
   };

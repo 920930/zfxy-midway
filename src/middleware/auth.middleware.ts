@@ -4,7 +4,7 @@ import { JwtService } from '@midwayjs/jwt';
 import { RedisService } from '@midwayjs/redis';
 import { Application } from '@midwayjs/koa';
 import type { TRedisInfo } from '../interface';
-import { CustomHttpError } from '../error/custom.error';
+// import { CustomHttpError } from '../error/custom.error';
 import { getAccessToken, getJsApiTicket } from '../utils/wechat';
 
 @Middleware()
@@ -54,7 +54,7 @@ export class AuthMiddleware {
           // 如果redis中数据都不存在，就代表refre-token过期，需要重新登录
           if(!info) throw new httpError.UnauthorizedError();
           const adminer: TRedisInfo = JSON.parse(info);
-          if(adminer.now != ret['now']) throw new CustomHttpError('不是最后的Token');
+          // if(adminer.now != ret['now']) throw new CustomHttpError('不是最后的Token');
           ctx.adminer = {id: adminer.id};
           // token过期 生成新的token
           const now = Date.now();
