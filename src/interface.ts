@@ -25,3 +25,12 @@ export type TRedisToken = {
   access: string;
   ticket: string;
 }
+
+export interface ISearch {
+  id?: number;
+  adminerId?: number;
+  userId?: number;
+  phone?: string;
+  page?: number;
+  size?: number;
+}

@@ -1,5 +1,7 @@
-import { Table, Model, Column, DataType, Default, AllowNull } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, Default, AllowNull, HasMany } from 'sequelize-typescript';
 import { md5 } from '../utils';
+import { User } from './user';
+import { Note } from './note';
 
 @Table({
   timestamps: true
@@ -46,4 +48,10 @@ export class Adminer extends Model {
     comment: '员工状态 1正常 0关闭'
   })
   state: boolean;
+
+  @HasMany(() => User)
+  users: User[]
+
+  @HasMany(() => Note)
+  notes: Note[]
 }

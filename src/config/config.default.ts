@@ -1,5 +1,8 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { Adminer } from '../entity/adminer';
+import { User } from '../entity/user';
+import { Note } from '../entity/note';
+import { Trade } from '../entity/trade';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
@@ -37,7 +40,7 @@ export default {
         dialect: 'mysql',
         define: { charset: 'utf8' },
         timezone: '+08:00',
-        entities: [Adminer],
+        entities: [Adminer, User, Note, Trade],
         // 本地的时候，可以通过 sync: true 直接 createTable
         sync: true,
       },
