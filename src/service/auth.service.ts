@@ -36,7 +36,7 @@ export class AuthService {
       try {
         const ret = await getWechatUserAccessToken(info.code, this.app.getConfig('wechat.appid'), this.app.getConfig('wechat.secret'));
         // 代表refre-token，过期需要重新登录
-        this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: ret.openid, now }), 'EX', this.app.getConfig('redis.client.end'));
+        this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: ret.openid, roleId: adminer.roleId, now }), 'EX', this.app.getConfig('redis.client.end'));
         const user = await getWechatUserInfo(ret.access_token, ret.openid);
         adminer.openid = ret.openid;
         !adminer.avatar && (adminer.avatar = user.headimgurl);
@@ -46,7 +46,7 @@ export class AuthService {
       }
     } else {
       // 代表refre-token，过期需要重新登录
-      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: adminer.openid, now }), 'EX', this.app.getConfig('redis.client.end'));
+      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: adminer.openid, roleId: adminer.roleId, now }), 'EX', this.app.getConfig('redis.client.end'));
     }
 
     const token = this.jwtService.signSync({ id: adminer.id, now });

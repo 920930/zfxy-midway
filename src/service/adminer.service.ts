@@ -1,13 +1,18 @@
-import { Provide } from '@midwayjs/core';
+import { Provide, Inject } from '@midwayjs/core';
+import { RedisService } from '@midwayjs/redis';
+import { Sequelize } from 'sequelize-typescript';
 import { Adminer } from '../entity/adminer';
 import { User } from '../entity/user';
 import { Note } from '../entity/note';
-import { Sequelize } from 'sequelize-typescript';
 import { Trade } from '../entity/trade';
 import { ISearch } from '../interface';
+import { CustomHttpError } from '../error/custom.error';
 
 @Provide()
 export class AdminerService {
+
+  @Inject()
+  redisService: RedisService;
 
   async index(search: ISearch) {
     const { page = 1, size = 10 } = search
@@ -42,5 +47,33 @@ export class AdminerService {
         { model: Note, limit, order: [['id', 'DESC']], include: [{ model: User }] },
       ]
     })
+  }
+
+  async edit(id: number, uid: string, data: any) {
+    await this.checkValid(id, uid, data)
+    Adminer.update(data, { where: { id: uid } })
+    return '修改成功'
+  }
+
+  async store(id: number, data: any) {
+    if (!data.password) throw new CustomHttpError('请输入密码')
+    await this.checkValid(id, '0', data)
+    const ader = await Adminer.findOne({ where: { phone: data.phone } })
+    if (ader) throw new CustomHttpError('手机号已存在')
+    Adminer.create(data)
+    return '新增成功'
+  }
+
+  async checkValid(id: number, uid: string, data: any) {
+    const me: { id: number; roleId: number } = JSON.parse(await this.redisService.get(`zfxy-adminer-${id}`));
+    if (data.roleId != 1 || data.roleId != 2 || data.roleId != 3) {
+      throw new CustomHttpError('角色权限错误')
+    }
+    if (me.roleId !== 1) throw new CustomHttpError('您没有权限')
+    if (me.id == Number.parseInt(uid)) {
+      if (me.roleId === 1 && data.roleId !== me.roleId) throw new CustomHttpError('what are you doing')
+    }
+    if (data.password && data.password != data.passwordConfig) throw new CustomHttpError('两次密码不一致')
+    if (!/^1[3-9]\d{9}$/.test(data.phone)) throw new CustomHttpError('手机号不正确')
   }
 }

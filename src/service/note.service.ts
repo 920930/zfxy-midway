@@ -21,6 +21,7 @@ export class NoteService {
         { model: User, attributes: ['id', 'name', 'state'] },
       ],
       order: [['createdAt', 'DESC']],
+      distinct: true,
     })
   }
 }
