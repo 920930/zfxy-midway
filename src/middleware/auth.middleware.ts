@@ -47,6 +47,7 @@ export class AuthMiddleware {
             // 如果redis中数据都不存在，就代表refre-token过期，需要重新登录
             if (!info) throw new httpError.UnauthorizedError();
             const adminer: TRedisInfo = JSON.parse(info);
+            if (!adminer.state) throw new httpError.UnauthorizedError();
             ctx.adminer = { id: adminer.id, roleId: adminer.roleId };
           }
         } catch (error) {
@@ -55,6 +56,7 @@ export class AuthMiddleware {
           // 如果redis中数据都不存在，就代表refre-token过期，需要重新登录
           if (!info) throw new httpError.UnauthorizedError();
           const adminer: TRedisInfo = JSON.parse(info);
+          if (!adminer.state) throw new httpError.UnauthorizedError();
           // if(adminer.now != ret['now']) throw new CustomHttpError('不是最后的Token');
           ctx.adminer = { id: adminer.id, roleId: adminer.roleId };
           // token过期 生成新的token

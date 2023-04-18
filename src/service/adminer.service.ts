@@ -19,7 +19,7 @@ export class AdminerService {
     return Adminer.findAndCountAll({
       limit: size - 0,
       offset: size * (page - 1),
-      attributes: ['id', 'name', 'avatar', 'phone']
+      attributes: ['id', 'name', 'avatar', 'phone', 'roleId', 'state']
     })
   }
 
@@ -51,6 +51,9 @@ export class AdminerService {
 
   async edit(id: number, uid: string, data: any) {
     await this.checkValid(id, uid, data)
+    if (!data.state) {
+      this.redisService.del('zfxy-adminer-' + uid)
+    }
     Adminer.update(data, { where: { id: uid } })
     return '修改成功'
   }
@@ -66,18 +69,18 @@ export class AdminerService {
 
   async checkValid(id: number, uid: string, data: any) {
     const me: { id: number; roleId: number } = JSON.parse(await this.redisService.get(`zfxy-adminer-${id}`));
-    if (data.roleId != 1 || data.roleId != 2 || data.roleId != 3) {
+    if (![1, 2, 3].includes(data.roleId)) {
       throw new CustomHttpError('角色权限错误')
     }
     // 新增判断
     if (uid == '0') {
       if (me.roleId == 3) throw new CustomHttpError('您没有权限')
-      if (me.roleId == 2 && (data.roleId == 1 || data.roleId == 2)) throw new CustomHttpError('您没有权限')
+      if (me.roleId == 2 && (data.roleId != 3)) throw new CustomHttpError('您没有权限')
     }
     // 编辑判断
     if (uid != '0') {
       if (me.roleId == 3 && me.id !== Number.parseInt(uid)) throw new CustomHttpError('您没有权限')
-      if (me.roleId == 2 && (data.roleId == 1 || data.roleId == 2)) throw new CustomHttpError('您没有权限')
+      if (me.roleId == 2 && (data.roleId != 3)) throw new CustomHttpError('您没有权限')
     }
     if (data.password && data.password != data.passwordConfig) throw new CustomHttpError('两次密码不一致')
     if (!/^1[3-9]\d{9}$/.test(data.phone)) throw new CustomHttpError('手机号不正确')

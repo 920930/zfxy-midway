@@ -45,8 +45,7 @@ export class UserService {
   }
 
   async store(data: any) {
-    User.create(data)
-    return '保存成功'
+    return User.create(data)
   }
 
   async edit(id: number, data: any) {

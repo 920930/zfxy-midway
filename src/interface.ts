@@ -20,6 +20,7 @@ export type TRedisInfo = {
   roleId: number;
   openid: string;
   now: number;
+  state: boolean;
 }
 
 export type TRedisToken = {
