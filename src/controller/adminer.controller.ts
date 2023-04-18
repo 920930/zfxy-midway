@@ -2,6 +2,7 @@ import { Controller, Inject, Get, Param, Query, Put, Body, Post } from '@midwayj
 import { Context } from '@midwayjs/koa';
 import { AdminerService } from '../service/adminer.service';
 import { ISearch } from '../interface';
+import { Adminer } from '../entity/adminer';
 
 @Controller('/api/adminer')
 export class AdminerController {
@@ -34,5 +35,13 @@ export class AdminerController {
   @Post('/store')
   async store(@Body() data: any) {
     return this.adminerService.store(this.ctx.adminer.id, data)
+  }
+
+  @Get('/all')
+  async all() {
+    return Adminer.findAll({
+      where: { state: true },
+      attributes: ['id', 'name']
+    });
   }
 }

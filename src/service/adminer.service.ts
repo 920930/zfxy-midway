@@ -69,9 +69,15 @@ export class AdminerService {
     if (data.roleId != 1 || data.roleId != 2 || data.roleId != 3) {
       throw new CustomHttpError('角色权限错误')
     }
-    if (me.roleId !== 1) throw new CustomHttpError('您没有权限')
-    if (me.id == Number.parseInt(uid)) {
-      if (me.roleId === 1 && data.roleId !== me.roleId) throw new CustomHttpError('what are you doing')
+    // 新增判断
+    if (uid == '0') {
+      if (me.roleId == 3) throw new CustomHttpError('您没有权限')
+      if (me.roleId == 2 && (data.roleId == 1 || data.roleId == 2)) throw new CustomHttpError('您没有权限')
+    }
+    // 编辑判断
+    if (uid != '0') {
+      if (me.roleId == 3 && me.id !== Number.parseInt(uid)) throw new CustomHttpError('您没有权限')
+      if (me.roleId == 2 && (data.roleId == 1 || data.roleId == 2)) throw new CustomHttpError('您没有权限')
     }
     if (data.password && data.password != data.passwordConfig) throw new CustomHttpError('两次密码不一致')
     if (!/^1[3-9]\d{9}$/.test(data.phone)) throw new CustomHttpError('手机号不正确')

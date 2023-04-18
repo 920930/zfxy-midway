@@ -17,6 +17,7 @@ export interface IAuthLogin {
 
 export type TRedisInfo = {
   id: number;
+  roleId: number;
   openid: string;
   now: number;
 }

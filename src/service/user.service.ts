@@ -44,13 +44,12 @@ export class UserService {
     return user
   }
 
-  async store(aid: number, data: any) {
-    User.create({ ...data, adminerId: aid, state: true })
+  async store(data: any) {
+    User.create(data)
     return '保存成功'
   }
 
-  async edit(aid: number, uid: number, data: any) {
-    const adminer = this.redisService.get('zfxy-adminer-' + aid);
-    return adminer
+  async edit(id: number, data: any) {
+    User.update(data, { where: { id } })
   }
 }

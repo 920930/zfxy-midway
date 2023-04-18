@@ -70,7 +70,7 @@ export class AuthService {
       if (!adminer) throw new CustomHttpError('第一次登录请使用账户密码登录')
       const now = Date.now();
       // 代表refre-token，过期需要重新登录
-      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: ret.openid, now }), 'EX', this.app.getConfig('redis.client.end'));
+      this.redisService.set(`zfxy-adminer-${adminer.id}`, JSON.stringify({ id: adminer.id, openid: ret.openid, roleId: adminer.roleId, now }), 'EX', this.app.getConfig('redis.client.end'));
       const token = this.jwtService.signSync({ id: adminer.id, now });
       return {
         token: `Bearer ${token}`,
