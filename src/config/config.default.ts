@@ -9,10 +9,12 @@ export default {
   keys: '1680167318186_2690',
   koa: {
     port: 7001,
+    web: 'http://192.168.2.116:5173/',
+    server: 'http://192.168.2.116:7001/'
   },
   wechat: {
     appid: 'wx7e998d6d465a5e90',
-    secret: '4e8bf5923e330ceee034d8a67012faff'
+    secret: '4e8bf5923e330ceee034d8a67012faff',
   },
   redis: {
     client: {

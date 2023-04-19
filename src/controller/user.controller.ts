@@ -24,12 +24,10 @@ export class UserController {
 
   @Post('/store')
   async store(@Body() data: any) {
-    const adminer = this.ctx.adminer;
-    // 员工创建，adminerId为自己
-    if (adminer.roleId == 3) data.adminerId = this.ctx.adminer.id;
-    else data.adminerId = Number.parseInt(data.adminerId.split('-')[0])
+    const ad: string[] = data.adminerId.split('-');
+    data.adminerId = Number.parseInt(ad[0])
     data.tradeId = Number.parseInt(data.tradeId.split('-')[0])
-    return this.userService.store(data)
+    return this.userService.store(data, ad[1])
   }
 
   @Put('/:id')

@@ -1,6 +1,8 @@
 import { makeHttpRequest } from '@midwayjs/core';
 import { createHash } from 'crypto';
 import { CustomHttpError } from '../error/custom.error';
+import * as dayjs from 'dayjs'
+import { IMessage } from '../interface';
 
 interface IAccessToken {
   access_token: string;
@@ -59,7 +61,7 @@ export const getWechatUserAccessToken = (code: string, appId: string, secret: st
   return new Promise((resolve, reject) => {
     makeHttpRequest<IWechatOpenid>(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=${secret}&code=${code}&grant_type=authorization_code`, {
       dataType: 'json'
-    }).then(({data}) => resolve(data as IWechatOpenid)).catch(err => reject(err))
+    }).then(({ data }) => resolve(data as IWechatOpenid)).catch(err => reject(err))
   })
 }
 // refresh_token 有效期30天，access_token 有效期2小时
@@ -67,7 +69,7 @@ export const getWechatUserRefeshAccessToken = (appId: string, refresh_token: str
   return new Promise((resolve, reject) => {
     makeHttpRequest<IWechatOpenid>(`https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=${appId}&grant_type=refresh_token&refresh_token=${refresh_token}`, {
       dataType: 'json'
-    }).then(({data}) => resolve(data as IWechatOpenid)).catch(err => reject(err))
+    }).then(({ data }) => resolve(data as IWechatOpenid)).catch(err => reject(err))
   })
 }
 
@@ -85,35 +87,39 @@ export const getWechatUserInfo = async (access_token: string, openid: string) =>
 
 
 // 发送模板消息
-export const sendMessage = async (access_token: string, openid: string) => {
+export const sendMessage = async (access_token: string, openid: string, data: IMessage) => {
   makeHttpRequest(`https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${access_token}`, {
     method: "POST",
     data: {
       // touser 接收者openid
       touser: openid,
       // 中储福森
-      // template_id: 'dctJ6ZGJvF6US-HkU3Cc_N-GxvsbNgArGb0VXz1ZuSA',
+      // template_id: 'YwBjAX1MDijm17BiwfcY04-6d5MGPVbmBhfZe5K3QvU',
       // 测试平台
-      template_id: 'YbKKrmyjsXxn4-TEsF0xG6qaay9zf5eLuqq8d7yppfE',
-      url: `http://192.168.2.116:5173/`,
+      template_id: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k',
+      url: data.url,
       data: {
         first: {
-          value: '你好，员工：hahaha 新增了什么',
+          value: data.first.value,
         },
         keyword1: {
-          value: '0.00',
-          color: "#1d1d1d",
+          value: data.keyword1.value,
+          color: data.keyword2.color || "#1d1d1d",
         },
         keyword2: {
-          value: '中储福森',
-          color: "#1d1d1d",
+          value: data.keyword2.value,
+          color: data.keyword2.color || "#1d1d1d"
+        },
+        keyword3: {
+          value: data.keyword3.value,
+          color: data.keyword2.color || "#173177"
         },
         remark: {
-          value: "已签到成功，感谢您对中储福森集团的支持！中储福森大牌不贵，实惠！",
-          color: "#173177"
+          value: data.remark?.value || dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          // color: "#173177"
         }
       }
     },
     dataType: 'json'
-  }).then(({data}) => data).catch(err => console.log(err))
+  }).then(({ data }) => data).catch(err => console.log(err))
 }
