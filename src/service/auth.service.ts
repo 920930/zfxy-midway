@@ -1,12 +1,14 @@
 import { App, Provide, Inject } from '@midwayjs/core';
-import { IAuthLogin } from '../interface';
+import { IAuthLogin, IMessage, TRedisToken } from '../interface';
 import { Adminer } from '../entity/adminer';
 import { CustomHttpError } from '../error/custom.error';
 import { RedisService } from '@midwayjs/redis';
 import { JwtService } from '@midwayjs/jwt';
 import { Application } from '@midwayjs/koa';
-import { getWechatUserAccessToken, getWechatUserInfo } from '../utils/wechat';
+import { getWechatUserAccessToken, getWechatUserInfo, sendMessage } from '../utils/wechat';
 import { md5 } from '../utils';
+import { User } from '../entity/user';
+import { Op } from 'sequelize';
 
 @Provide()
 export class AuthService {
@@ -82,5 +84,30 @@ export class AuthService {
 
   logout(id: number) {
     this.redisService.del(`zfxy-adminer-${id}`)
+  }
+
+  // sendMessage
+  async send(info: { userId: number; adminerId: number; content: string }) {
+    const adminers = await Adminer.findAll({ where: { state: true, roleId: { [Op.in]: [1, 2] } }, attributes: ['id', 'name', 'openid'] })
+    const formAd = await Adminer.findByPk(info.adminerId)
+    const tokens = await this.redisService.get('zfxy-token')
+    const token: TRedisToken = JSON.parse(tokens)
+    const user = await User.findByPk(info.userId)
+    const datas: IMessage = {
+      url: this.app.getConfig('koa.web') + "/user/" + info.userId,
+      first: {
+        value: `${formAd.name}新增一条客户跟踪记录`
+      },
+      keyword1: {
+        value: user.name
+      },
+      keyword2: {
+        value: user.phone
+      },
+      keyword3: {
+        value: info.content
+      }
+    }
+    adminers.forEach(item => sendMessage(token.access, item.openid, datas))
   }
 }

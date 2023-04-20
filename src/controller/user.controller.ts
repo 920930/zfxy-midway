@@ -27,7 +27,8 @@ export class UserController {
     const ad: string[] = data.adminerId.split('-');
     data.adminerId = Number.parseInt(ad[0])
     data.tradeId = Number.parseInt(data.tradeId.split('-')[0])
-    return this.userService.store(data, ad[1])
+    data.marketId = data.marketId.split('-')[0]
+    return this.userService.store(data)
   }
 
   @Put('/:id')
@@ -38,6 +39,7 @@ export class UserController {
     if (adminer.roleId == 3 && data.adminerId != adminer.id) {
       throw new CustomHttpError('您无权修改')
     }
+    data.marketId = data.marketId.split('-')[0]
     data['tradeId'] = data.tradeId.split('-')[0]
     return this.userService.edit(Number.parseInt(id), data)
   }

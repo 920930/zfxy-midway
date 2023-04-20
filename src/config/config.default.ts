@@ -3,14 +3,15 @@ import { Adminer } from '../entity/adminer';
 import { User } from '../entity/user';
 import { Note } from '../entity/note';
 import { Trade } from '../entity/trade';
+import { Market } from '../entity/market';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
   keys: '1680167318186_2690',
   koa: {
     port: 7001,
-    web: 'http://192.168.2.116:5173/',
-    server: 'http://192.168.2.116:7001/'
+    web: 'http://192.168.2.116:5173',
+    server: 'http://192.168.2.116:7001'
   },
   wechat: {
     appid: 'wx7e998d6d465a5e90',
@@ -42,7 +43,7 @@ export default {
         dialect: 'mysql',
         define: { charset: 'utf8' },
         timezone: '+08:00',
-        entities: [Adminer, User, Note, Trade],
+        entities: [Adminer, User, Note, Trade, Market],
         // 本地的时候，可以通过 sync: true 直接 createTable
         sync: true,
       },

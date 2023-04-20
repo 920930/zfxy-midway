@@ -3,6 +3,7 @@ import { Adminer } from './adminer';
 import { Note } from './note';
 import * as dayjs from 'dayjs';
 import { Trade } from './trade';
+import { Market } from './market';
 
 @Table({
   timestamps: true
@@ -22,9 +23,33 @@ export class User extends Model {
 
   @AllowNull(false)
   @Column({
+    comment: '0男 1女'
+  })
+  sex: boolean;
+
+  @AllowNull(false)
+  @Column({
     comment: '客户简介'
   })
   desc: string;
+
+  @AllowNull(false)
+  @Column({
+    comment: '客户地址'
+  })
+  address: string;
+
+  @AllowNull(false)
+  @Column({
+    comment: '意向面积'
+  })
+  area: string;
+
+  @AllowNull(false)
+  @Column({
+    comment: '意向租赁时长'
+  })
+  timer: string;
 
   @Default(1)
   @Column({
@@ -49,6 +74,13 @@ export class User extends Model {
 
   @BelongsTo(() => Trade)
   trade: Trade;
+
+  @ForeignKey(() => Market)
+  @Column
+  marketId: number;
+
+  @BelongsTo(() => Market)
+  market: Market;
 
   @CreatedAt
   @Column({

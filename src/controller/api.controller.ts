@@ -7,6 +7,7 @@ import { User } from '../entity/user';
 import { Note } from '../entity/note';
 import { Op } from 'sequelize';
 import { Adminer } from '../entity/adminer';
+import { Trade } from '../entity/trade';
 
 @Controller('/api')
 export class APIController {
@@ -46,7 +47,10 @@ export class APIController {
       },
       limit: 5,
       order: [['createdAt', 'DESC']],
-      include: { model: Adminer, attributes: ['id', 'name'] },
+      include: [
+        { model: Adminer, attributes: ['id', 'name'] },
+        { model: Trade }
+      ],
     });
     const usersOld = await User.findAndCountAll({
       where: {
@@ -56,7 +60,10 @@ export class APIController {
       },
       limit: 5,
       order: [['createdAt', 'DESC']],
-      include: { model: Adminer, attributes: ['id', 'name'] }
+      include: [
+        { model: Adminer, attributes: ['id', 'name'] },
+        { model: Trade }
+      ]
     });
     const noteNew = await Note.findAndCountAll({
       where: {

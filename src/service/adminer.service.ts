@@ -37,8 +37,8 @@ export class AdminerService {
       attributes: {
         exclude: ['password', 'openid'],
         include: [
-          [Sequelize.literal(`(select count(*) from users where adminerId = ${id})`), 'userCount'],
-          [Sequelize.literal(`(select count(*) from notes where adminerId = ${id})`), 'noteCount'],
+          [Sequelize.literal(`(select count(*) from Users where adminerId = ${id})`), 'userCount'],
+          [Sequelize.literal(`(select count(*) from Notes where adminerId = ${id})`), 'noteCount'],
         ]
       },
       // attributes: ['foo', 'bar']

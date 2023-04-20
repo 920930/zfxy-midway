@@ -4,10 +4,11 @@ import { User } from '../entity/user';
 // import { CustomHttpError } from '../error/custom.error';
 import { Adminer } from '../entity/adminer';
 import { Trade } from '../entity/trade';
-import { IMessage, ISearch, TRedisToken } from '../interface';
+import { ISearch } from '../interface';
 import { RedisService } from '@midwayjs/redis';
-import { sendMessage } from '../utils/wechat';
 import { Op } from 'sequelize';
+import { AuthService } from './auth.service';
+import { Market } from '../entity/market';
 
 @Provide()
 export class UserService {
@@ -16,6 +17,9 @@ export class UserService {
 
   @Inject()
   redisService: RedisService;
+
+  @Inject()
+  authService: AuthService;
 
   async index(search: ISearch) {
     const { page = 1, size = 5, adminerId, name, phone } = search;
@@ -47,35 +51,19 @@ export class UserService {
         },
         {
           model: Trade
+        },
+        {
+          model: Market
         }
       ]
     })
     return user
   }
 
-  async store(data: any, adminerName: string) {
+  async store(data: any) {
     const user = await User.create(data);
     // 群发消息 start
-    const adminers = await Adminer.findAll({ where: { state: true, roleId: { [Op.in]: [1, 2] } }, attributes: ['openid'] })
-    const tokens = await this.redisService.get('zfxy-token')
-    const token: TRedisToken = JSON.parse(tokens)
-    const datas: IMessage = {
-      url: this.app.getConfig('koa.web') + user.id,
-      first: {
-        value: `${adminerName}新增一条客户信息`
-      },
-      keyword1: {
-        value: user.name
-      },
-      keyword2: {
-        value: user.phone
-      },
-      keyword3: {
-        value: user.desc
-      }
-    }
-    adminers.forEach(item => sendMessage(token.access, item.openid, datas))
-    // 群发消息 end
+    this.authService.send({ userId: user.id, adminerId: data.adminerId, content: data.desc })
     return { id: user.id }
   }
 
