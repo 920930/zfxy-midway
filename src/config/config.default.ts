@@ -16,6 +16,7 @@ export default {
   wechat: {
     appid: 'wx7e998d6d465a5e90',
     secret: '4e8bf5923e330ceee034d8a67012faff',
+    templateId: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k'
   },
   redis: {
     client: {

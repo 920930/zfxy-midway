@@ -108,6 +108,6 @@ export class AuthService {
         value: info.content
       }
     }
-    adminers.forEach(item => sendMessage(token.access, item.openid, datas))
+    adminers.forEach(item => sendMessage({ access_token: token.access, openid: item.openid, templateId: this.app.getConfig('wechat.templateId') }, datas))
   }
 }

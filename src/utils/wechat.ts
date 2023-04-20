@@ -85,18 +85,23 @@ export const getWechatUserInfo = async (access_token: string, openid: string) =>
   }
 }
 
-
+type TInfo = {
+  access_token: string;
+  openid: string;
+  templateId: string;
+}
 // 发送模板消息
-export const sendMessage = async (access_token: string, openid: string, data: IMessage) => {
-  makeHttpRequest(`https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${access_token}`, {
+export const sendMessage = async (info: TInfo, data: IMessage) => {
+  makeHttpRequest(`https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${info.access_token}`, {
     method: "POST",
     data: {
       // touser 接收者openid
-      touser: openid,
+      touser: info.openid,
       // 中储福森
       // template_id: 'YwBjAX1MDijm17BiwfcY04-6d5MGPVbmBhfZe5K3QvU',
       // 测试平台
-      template_id: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k',
+      // template_id: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k',
+      template_id: info.templateId,
       url: data.url,
       data: {
         first: {
