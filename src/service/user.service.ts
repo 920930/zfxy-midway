@@ -9,6 +9,7 @@ import { RedisService } from '@midwayjs/redis';
 import { Op } from 'sequelize';
 import { AuthService } from './auth.service';
 import { Market } from '../entity/market';
+import { CustomHttpError } from '../error/custom.error';
 
 @Provide()
 export class UserService {
@@ -61,6 +62,8 @@ export class UserService {
   }
 
   async store(data: any) {
+    const one = await User.findOne({ where: { phone: data.phone } })
+    if (one) throw new CustomHttpError('手机号已存在')
     const user = await User.create(data);
     // 群发消息 start
     this.authService.send({ userId: user.id, adminerId: data.adminerId, content: data.desc })
@@ -68,6 +71,8 @@ export class UserService {
   }
 
   async edit(id: number, data: any) {
+    const one = await User.findOne({ where: { phone: data.phone } });
+    if (one && one.id != id) throw new CustomHttpError('手机号已存在')
     User.update(data, { where: { id } })
   }
 }

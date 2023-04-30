@@ -17,7 +17,7 @@ export class User extends Model {
 
   @AllowNull(false)
   @Column({
-    type: DataType.STRING(20)
+    type: DataType.STRING(20),
   })
   phone: string;
 
