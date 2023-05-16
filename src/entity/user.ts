@@ -1,9 +1,10 @@
-import { Table, Model, Column, DataType, Default, AllowNull, BelongsTo, HasMany, ForeignKey, CreatedAt } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, Default, AllowNull, BelongsTo, HasMany, ForeignKey, CreatedAt, BelongsToMany } from 'sequelize-typescript';
 import { Adminer } from './adminer';
 import { Note } from './note';
 import * as dayjs from 'dayjs';
 import { Trade } from './trade';
 import { Market } from './market';
+import { MarketUser } from './marketUser';
 
 @Table({
   timestamps: true
@@ -74,13 +75,9 @@ export class User extends Model {
 
   @BelongsTo(() => Trade)
   trade: Trade;
-
-  @ForeignKey(() => Market)
-  @Column
-  marketId: number;
-
-  @BelongsTo(() => Market)
-  market: Market;
+  // 项目 - 客户 多对多关系
+  @BelongsToMany(() => Market, () => MarketUser)
+  markets: Market[];
 
   @CreatedAt
   @Column({

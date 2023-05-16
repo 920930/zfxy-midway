@@ -24,24 +24,29 @@ export class UserController {
 
   @Post('/store')
   async store(@Body() data: any) {
-    const ad: string[] = data.adminerId.split('-');
-    data.adminerId = Number.parseInt(ad[0])
+    const admin = this.ctx.adminer;
+    data.adminerId = Number.parseInt(admin.id)
     data.tradeId = Number.parseInt(data.tradeId.split('-')[0])
-    data.marketId = data.marketId.split('-')[0]
     return this.userService.store(data)
+  }
+
+  @Put('/:id/move')
+  async move(@Param('id') uid: string, @Body('aid') aid: string) {
+    const adminer: { id: number, roleId: number } = this.ctx.adminer;
+    const roleId = Number.parseInt(this.ctx.adminer.roleId);
+    if (roleId == 3) {
+      throw new CustomHttpError('您没有权限')
+    }
+    return this.userService.move(uid, aid, adminer.id)
   }
 
   @Put('/:id')
   async edit(@Body() data: any, @Param('id') id: string) {
     const adminer = this.ctx.adminer;
-    data.adminerId = Number.parseInt(data.adminerId.split('-')[0])
-    // 如果是员工 & 更新的客户信息adminerId 不是当前员工的id
-    if (adminer.roleId == 3 && data.adminerId != adminer.id) {
-      throw new CustomHttpError('您无权修改')
-    }
-    data.marketId = data.marketId.split('-')[0]
+    data.adminerId && delete data['adminerId']
+    // data.marketId = data.marketId.split('-')[0]
     data['tradeId'] = data.tradeId.split('-')[0]
-    return this.userService.edit(Number.parseInt(id), data)
+    return this.userService.edit(Number.parseInt(id), data, adminer.id)
   }
 
   @Del('/:id')

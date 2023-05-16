@@ -9,6 +9,7 @@ import { getWechatUserAccessToken, getWechatUserInfo, sendMessage } from '../uti
 import { md5 } from '../utils';
 import { User } from '../entity/user';
 import { Op } from 'sequelize';
+import * as dayjs from 'dayjs'
 
 @Provide()
 export class AuthService {
@@ -95,9 +96,6 @@ export class AuthService {
     const user = await User.findByPk(info.userId)
     const datas: IMessage = {
       url: this.app.getConfig('koa.web') + "/user/" + info.userId,
-      first: {
-        value: `${formAd.name}新增一条客户跟踪记录`
-      },
       keyword1: {
         value: user.name
       },
@@ -105,9 +103,38 @@ export class AuthService {
         value: user.phone
       },
       keyword3: {
-        value: info.content
+        value: `${formAd.name}：${info.content}`
       }
     }
-    adminers.forEach(item => sendMessage({ access_token: token.access, openid: item.openid, templateId: this.app.getConfig('wechat.templateId') }, datas))
+    adminers.forEach(item => sendMessage({ access_token: token.access, openid: item.openid, templateId: this.app.getConfig('wechat.templateId1') }, datas))
+  }
+
+  // moveMessage
+  async move(user: { id: number, name: string, phone: string }, toAdminId: number, fromAdminId: number, superAdminId: number) {
+    const adminers = await Adminer.findAll({ where: { state: true, roleId: { [Op.in]: [1, 2] } }, attributes: ['id', 'name', 'openid'] })
+    const superAdmin = adminers.find(item => item.id === superAdminId)
+    const toAdmin = await Adminer.findByPk(toAdminId)
+    const fromAdmin = await Adminer.findByPk(fromAdminId)
+
+    const tokens = await this.redisService.get('zfxy-token')
+    const token: TRedisToken = JSON.parse(tokens)
+    const datas: IMessage = {
+      url: this.app.getConfig('koa.web') + "/user/" + user.id,
+      first: {
+        value: `管理员${superAdmin.name}，重新分配了客户`
+      },
+      keyword1: {
+        value: `${user.name} - ${user.phone}`
+      },
+      keyword2: {
+        value: `${superAdmin.name}将TA从${fromAdmin.name}转到${toAdmin.name}名下`
+      },
+      keyword3: {
+        value: `${dayjs().format('YYYY-MM-DD HH:mm')}`
+      }
+    }
+    adminers.forEach(item => sendMessage({ access_token: token.access, openid: item.openid, templateId: this.app.getConfig('wechat.templateId2') }, datas))
+    sendMessage({ access_token: token.access, openid: fromAdmin.openid, templateId: this.app.getConfig('wechat.templateId2') }, datas)
+    sendMessage({ access_token: token.access, openid: toAdmin.openid, templateId: this.app.getConfig('wechat.templateId2') }, datas)
   }
 }

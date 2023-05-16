@@ -64,15 +64,36 @@ export class UserService {
   async store(data: any) {
     const one = await User.findOne({ where: { phone: data.phone } })
     if (one) throw new CustomHttpError('手机号已存在')
+    let marketIds: string[] = (data.markets as string).split(',').map(item => item.split('-')[0]);
+    const markets = await Market.findAll({ where: { id: marketIds } })
     const user = await User.create(data);
+    user.$add('markets', markets)
     // 群发消息 start
     this.authService.send({ userId: user.id, adminerId: data.adminerId, content: data.desc })
     return { id: user.id }
   }
 
-  async edit(id: number, data: any) {
+  async edit(id: number, data: any, adminId: string) {
     const one = await User.findOne({ where: { phone: data.phone } });
-    if (one && one.id != id) throw new CustomHttpError('手机号已存在')
-    User.update(data, { where: { id } })
+    if (one && one.id != id) throw new CustomHttpError('手机号已存在');
+    const user = await User.findByPk(id);
+    if (user.adminerId != Number.parseInt(adminId)) throw new CustomHttpError('此客户不是您的客户')
+
+    let marketIds: string[] = (data.markets as string).split(',').map(item => item.split('-')[0])
+    const markets = await Market.findAll({ where: { id: marketIds } })
+    delete data['markets']
+    await user.$set('markets', markets)
+    await User.update(data, { where: { id } })
+    return 'ok'
+  }
+
+  async move(id: string, toAid: string, ctxAdminId: number) {
+    const user = await User.findOne({ where: { id }, include: { model: Adminer } });
+    if (user.adminerId == Number.parseInt(toAid)) {
+      throw new CustomHttpError('客户没有转移')
+    }
+    this.authService.move({ id: user.id, name: user.name, phone: user.phone }, user.adminerId, Number.parseInt(toAid), ctxAdminId)
+    await User.update({ adminerId: toAid }, { where: { id } })
+    return 'ok'
   }
 }

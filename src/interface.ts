@@ -40,7 +40,7 @@ export interface ISearch {
 
 export interface IMessage {
   url?: string;
-  first: {
+  first?: {
     value: string;
     color?: string;
   };
