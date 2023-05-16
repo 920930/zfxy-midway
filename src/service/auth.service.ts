@@ -110,7 +110,7 @@ export class AuthService {
   }
 
   // moveMessage
-  async move(user: { id: number, name: string, phone: string }, toAdminId: number, fromAdminId: number, superAdminId: number) {
+  async move(user: { id: number, name: string, phone: string }, fromAdminId: number, toAdminId: number, superAdminId: number) {
     const adminers = await Adminer.findAll({ where: { state: true, roleId: { [Op.in]: [1, 2] } }, attributes: ['id', 'name', 'openid'] })
     const superAdmin = adminers.find(item => item.id === superAdminId)
     const toAdmin = await Adminer.findByPk(toAdminId)
