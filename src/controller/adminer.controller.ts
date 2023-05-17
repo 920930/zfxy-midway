@@ -38,9 +38,12 @@ export class AdminerController {
   }
 
   @Get('/all')
-  async all() {
+  async all(@Query() search: ISearch) {
+    const { roleId = null } = search;
+    const where: { [key: string]: any } = {};
+    roleId != null && (where['roleId'] = roleId)
     return Adminer.findAll({
-      where: { state: true },
+      where: { ...where, state: true },
       attributes: ['id', 'name']
     });
   }

@@ -36,6 +36,8 @@ export interface ISearch {
   phone?: string;
   page?: number;
   size?: number;
+  roleId?: number;
+  state?: number;
 }
 
 export interface IMessage {

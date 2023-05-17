@@ -15,10 +15,13 @@ export class AdminerService {
   redisService: RedisService;
 
   async index(search: ISearch) {
-    const { page = 1, size = 10 } = search
+    const { page = 1, size = 30, roleId = null } = search;
+    const where: { [key: string]: any } = {};
+    roleId != null && (where['roleId'] = roleId)
     return Adminer.findAndCountAll({
       limit: size - 0,
       offset: size * (page - 1),
+      where,
       attributes: ['id', 'name', 'avatar', 'phone', 'roleId', 'state']
     })
   }

@@ -23,12 +23,12 @@ export class UserService {
   authService: AuthService;
 
   async index(search: ISearch) {
-    const { page = 1, size = 5, adminerId, name, phone } = search;
+    const { page = 1, size = 5, adminerId, name, phone, state } = search;
     const where: { [key: string]: any } = {}
     adminerId && (where['adminerId'] = adminerId)
     name && (where['name'] = { [Op.substring]: name })
     phone && (where['phone'] = { [Op.substring]: phone })
-    console.log(where)
+    state != undefined && (where['state'] = state)
     return User.findAndCountAll({
       where,
       limit: size - 0,
