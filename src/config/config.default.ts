@@ -11,22 +11,22 @@ export default {
   keys: '1680167318186_2690',
   koa: {
     port: 7001,
-    web: 'http://192.168.2.116:5173',
-    server: 'http://192.168.2.116:7001'
+    web: 'http://192.168.1.92:5173',
+    server: 'http://192.168.1.92:7001',
   },
   wechat: {
     appid: 'wx7e998d6d465a5e90',
     secret: '4e8bf5923e330ceee034d8a67012faff',
     templateId1: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k',
-    templateId2: 'J5u93ong5XMOgmy2Tsu-0Aak1mzV1K48fm4pNPbag34'
+    templateId2: 'J5u93ong5XMOgmy2Tsu-0Aak1mzV1K48fm4pNPbag34',
   },
   redis: {
     client: {
       port: 6379, // Redis port
-      host: "127.0.0.1", // Redis host
-      password: "",
+      host: '127.0.0.1', // Redis host
+      password: '',
       // db: 0,
-      end: 60 * 60 * 24 * 30 // 30天过期
+      end: 60 * 60 * 24 * 30, // 30天过期
     },
   },
   jwt: {
