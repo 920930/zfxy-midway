@@ -6,7 +6,7 @@ import { ISearch } from '../interface';
 import { User } from '../entity/user';
 import { CustomHttpError } from '../error/custom.error';
 import { RedisService } from '@midwayjs/redis';
-import { AuthService } from './auth.service';
+import { MsgService } from './msg.service';
 
 @Provide()
 export class NoteService {
@@ -17,13 +17,13 @@ export class NoteService {
   redisService: RedisService;
 
   @Inject()
-  authService: AuthService;
+  msgService: MsgService;
 
   async index(search: ISearch) {
     const { userId, page = 1, size = 2, adminerId } = search;
     const where: { [key: string]: any } = {};
-    userId && (where['userId'] = userId)
-    adminerId && (where['adminerId'] = adminerId)
+    userId && (where['userId'] = userId);
+    adminerId && (where['adminerId'] = adminerId);
 
     return Note.findAndCountAll({
       where,
@@ -35,26 +35,26 @@ export class NoteService {
       ],
       order: [['updatedAt', 'DESC']],
       distinct: true,
-    })
+    });
   }
 
   async show(id: number) {
-    return Note.findOne({ where: { id } })
+    return Note.findOne({ where: { id } });
   }
 
   async edit(id: number, content: string) {
-    return Note.update({ content }, { where: { id } })
+    return Note.update({ content }, { where: { id } });
   }
 
   async store(info: { content: string; userId: number; adminerId: number }) {
     // 群发消息
-    this.authService.send(info)
-    return Note.create(info)
+    this.msgService.send(info);
+    return Note.create(info);
   }
 
   async del(id: number, aid: number) {
-    const note = await Note.findOne({ where: { id } })
-    if (note.adminerId != aid) throw new CustomHttpError('您无权删除')
-    return Note.destroy({ where: { id } })
+    const note = await Note.findOne({ where: { id } });
+    if (note.adminerId != aid) throw new CustomHttpError('您无权删除');
+    return Note.destroy({ where: { id } });
   }
 }

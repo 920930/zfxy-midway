@@ -19,6 +19,7 @@ export default {
     secret: '4e8bf5923e330ceee034d8a67012faff',
     templateId1: '-KO65uwQxCSR40_Nwe_P1ZNklK98Yuq0Thwwk_-ZR_k',
     templateId2: 'J5u93ong5XMOgmy2Tsu-0Aak1mzV1K48fm4pNPbag34',
+    templateId3: 'fIg-BB9_PbXNUixUAcImBWdrZKrou6UKxe1WsNVfBPY',
   },
   redis: {
     client: {

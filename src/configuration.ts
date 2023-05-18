@@ -6,6 +6,7 @@ import * as crossDomain from '@midwayjs/cross-domain';
 import * as redis from '@midwayjs/redis';
 import * as jwt from '@midwayjs/jwt';
 import * as sequelize from '@midwayjs/sequelize';
+import * as cron from '@midwayjs/cron';
 import { join } from 'path';
 import { DefaultErrorFilter } from './filter/default.filter';
 import { ReportMiddleware } from './middleware/report.middleware';
@@ -24,6 +25,7 @@ import { Adminer } from './entity/adminer';
     redis,
     jwt,
     sequelize,
+    cron,
   ],
   importConfigs: [join(__dirname, './config')],
 })
@@ -45,8 +47,8 @@ export class ContainerLifeCycle {
         name: '张浩刚',
         phone: '18081990075',
         password: '123456',
-        roleId: 1
-      }
-    })
-  };
+        roleId: 1,
+      },
+    });
+  }
 }

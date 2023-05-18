@@ -12,7 +12,7 @@ export interface IUserOptions {
 export interface IAuthLogin {
   phone: string;
   password: string;
-  code: string
+  code: string;
 }
 
 export type TRedisInfo = {
@@ -21,12 +21,12 @@ export type TRedisInfo = {
   openid: string;
   now: number;
   state: boolean;
-}
+};
 
 export type TRedisToken = {
   access: string;
   ticket: string;
-}
+};
 
 export interface ISearch {
   id?: number;
@@ -54,7 +54,7 @@ export interface IMessage {
     value: string;
     color?: string;
   };
-  keyword3: {
+  keyword3?: {
     value: string;
     color?: string;
   };
