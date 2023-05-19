@@ -7,6 +7,7 @@ import { Adminer } from '../entity/adminer';
 import { User } from '../entity/user';
 import { Op } from 'sequelize';
 import * as dayjs from 'dayjs';
+import { Note } from '../entity/note';
 
 @Provide()
 export class MsgService {
@@ -20,53 +21,21 @@ export class MsgService {
     const adminers = await Adminer.findAll({
       where: { state: true },
       attributes: ['id', 'name', 'openid', 'roleId'],
+      include: [
+        { model: User, attributes: ['id', 'createdAt'], limit: 1, order: [['createdAt', 'DESC']] },
+        { model: Note, attributes: ['id', 'createdAt'], limit: 1, order: [['createdAt', 'DESC']] },
+      ],
     });
     // 员工列表
     const members = adminers.filter(item => item.roleId == 3);
     // 管理员列表
     const admins = adminers.filter(item => item.roleId != 3);
-    // 员工提交用户记录
-    const userData = await this.redisService.get('zfxy-yuqi-user');
-    const userList: { id: number; time: number }[] = JSON.parse(
-      userData || '[]'
-    );
-    const memberUserList = members.map(item => {
-      const info = {
-        name: item.name,
-        openid: item.openid,
-        yuqi: true,
-        time: Date.now(),
-      };
-      const one = userList.find(ret => ret.id == item.id);
-      if (!one) return info;
-      info.time = one.time;
-      if (one.time < info.time) return info;
-      info.yuqi = false;
-      return info;
+    // 逾期未新增用户的员工
+    const menberUsers = members.filter(item => {
+      const num = dayjs(item.users[0].createdAt)
     });
-    // 员工追踪用户记录
-    const noteData = await this.redisService.get('zfxy-yuqi-note');
-    const noteList: { id: number; time: number }[] = JSON.parse(
-      noteData || '[]'
-    );
-    const memberNoteList = members.map(item => {
-      const info = {
-        name: item.name,
-        openid: item.openid,
-        yuqi: true,
-        time: Date.now(),
-      };
-      const one = noteList.find(ret => ret.id == item.id);
-      if (!one) return info;
-      info.time = one.time;
-      if (one.time < Date.now()) return info;
-      info.yuqi = false;
-      return info;
-    });
-    // 预期未新增用户的员工
-    const menberUsers = memberUserList.filter(item => item.yuqi);
     // 逾期未追踪用户的员工
-    const menberNotes = memberNoteList.filter(item => item.yuqi);
+    const menberNotes = members.filter(item => dayjs(item.notes[0].createdAt) - dayjs());
 
     return {
       menberUsers,
@@ -75,9 +44,7 @@ export class MsgService {
     };
   }
 
-  async message(openid: string, msg1: string, msg2: string) {
-    const tokens = await this.redisService.get('zfxy-token');
-    const token: TRedisToken = JSON.parse(tokens);
+  async message(access: string, openid: string, msg1: string, msg2: string) {
     const datas: IMessage = {
       url: this.app.getConfig('koa.web') + '/index',
       keyword1: {
@@ -87,9 +54,10 @@ export class MsgService {
         value: msg2,
       },
     };
+    console.log(datas)
     sendMessage(
       {
-        access_token: token.access,
+        access_token: access,
         openid,
         templateId: this.app.getConfig('wechat.templateId3'),
       },

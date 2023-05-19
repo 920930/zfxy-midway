@@ -75,21 +75,6 @@ export class UserService {
       adminerId: data.adminerId,
       content: data.desc,
     });
-    // 新增客户后，6天后提醒员工新增客户 1000 * 60 * 60 * 24 * 6
-    const info = {
-      id: data.adminerId,
-      time: Date.now() + 1000 * 60 * 60 * 24 * 7,
-    };
-    const redisDatas = await this.redisService.get('zfxy-yuqi-user');
-    if (!redisDatas) {
-      this.redisService.set('zfxy-yuqi-user', JSON.stringify([info]));
-    } else {
-      const yuqis: { id: number; time: number }[] = JSON.parse(redisDatas);
-      const one = yuqis.find(item => item.id == data.adminerId);
-      if (!one) yuqis.push(info);
-      else one.time = Date.now() + 1000 * 60 * 60 * 24 * 7;
-      this.redisService.set('zfxy-yuqi-user', JSON.stringify(yuqis));
-    }
     return { id: user.id };
   }
 
