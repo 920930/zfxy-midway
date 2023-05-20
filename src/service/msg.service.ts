@@ -31,11 +31,9 @@ export class MsgService {
     // 管理员列表
     const admins = adminers.filter(item => item.roleId != 3);
     // 逾期未新增用户的员工
-    const menberUsers = members.filter(item => {
-      const num = dayjs(item.users[0].createdAt)
-    });
+    const menberUsers = members.filter(item => item.users.length && dayjs(item.users[0].createdAt).add(7, 'day').isBefore(dayjs()));
     // 逾期未追踪用户的员工
-    const menberNotes = members.filter(item => dayjs(item.notes[0].createdAt) - dayjs());
+    const menberNotes = members.filter(item => item.notes.length && dayjs(item.notes[0].createdAt).add(3, 'day').isBefore(dayjs()));
 
     return {
       menberUsers,
