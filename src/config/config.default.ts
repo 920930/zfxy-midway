@@ -48,8 +48,9 @@ export default {
         define: { charset: 'utf8' },
         timezone: '+08:00',
         entities: [Adminer, User, Note, Trade, Market, MarketUser],
+        logging: false,
         // 本地的时候，可以通过 sync: true 直接 createTable
-        sync: true,
+        sync: false,
       },
     },
   },

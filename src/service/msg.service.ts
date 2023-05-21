@@ -31,9 +31,21 @@ export class MsgService {
     // 管理员列表
     const admins = adminers.filter(item => item.roleId != 3);
     // 逾期未新增用户的员工
-    const menberUsers = members.filter(item => item.users.length && dayjs(item.users[0].createdAt).add(7, 'day').isBefore(dayjs()));
+    const menberUsers = members.filter(item => {
+      if (item.users.length) {
+        return dayjs(item.users[0].createdAt).add(7, 'day').isBefore(dayjs())
+      } else {
+        return true;
+      }
+    });
     // 逾期未追踪用户的员工
-    const menberNotes = members.filter(item => item.notes.length && dayjs(item.notes[0].createdAt).add(3, 'day').isBefore(dayjs()));
+    const menberNotes = members.filter(item => {
+      if (item.notes.length) {
+        return dayjs(item.notes[0].createdAt).add(3, 'day').isBefore(dayjs())
+      } else {
+        return true;
+      }
+    });
 
     return {
       menberUsers,

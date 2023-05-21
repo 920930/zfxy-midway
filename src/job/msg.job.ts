@@ -3,8 +3,9 @@ import { FORMAT, Inject, App } from '@midwayjs/core';
 import { Application } from '@midwayjs/koa';
 import { MsgService } from '../service/msg.service';
 import { RedisService } from '@midwayjs/redis';
-import type { TRedisToken } from '../interface';
+import type { TRedisToken, TSendMemberNote } from '../interface';
 import { getJsApiTicket, getAccessToken } from '../utils/wechat';
+import * as dayjs from 'dayjs';
 
 @Job({
   // cronTime: FORMAT.CRONTAB.EVERY_HOUR,
@@ -30,10 +31,55 @@ export class DataSyncCheckerJob implements IJob {
       this.redisService.set('zfxy-token', tokens, 'EX', AccessToken.expires_in)
     }
     const token: TRedisToken = JSON.parse(tokens);
+    // 查看已发送员工新增客户信息
+    const sendMember = await this.redisService.get('zfxy-send-member');
+    const sendMembers: TSendMemberNote[] = JSON.parse(sendMember || '[]');
+    // 查看已发送员工新增记录信息
+    const sendNote = await this.redisService.get('zfxy-send-note');
+    const sendNotes: TSendMemberNote[] = JSON.parse(sendNote || '[]');
     // menberUsers  menberNotes  admins
     const data = await this.msgService.index();
+    // 找出没有发送 - 提示消息的员工
+    const members = data.menberUsers.filter(item => {
+      const index = sendMembers.find(mem => mem.openid === item.openid)
+      if (index) {
+        return dayjs(index.sendTime).isBefore(Date.now())
+      } else {
+        return true;
+      }
+    })
+    // 找出没有发送 - 记录信息的员工
+    const notes = data.menberNotes.filter(item => {
+      const index = sendNotes.find(mem => mem.openid === item.openid)
+      if (index) {
+        return dayjs(index.sendTime).isBefore(Date.now())
+      } else {
+        return true;
+      }
+    })
+    // 重新设定已发送消息的员工member
+    const redisMember: TSendMemberNote[] = data.menberUsers.map(item => {
+      const one = sendMembers.find(mem => mem.openid === item.openid)
+      if (one) {
+        return dayjs(one.sendTime).isBefore(Date.now()) ? one : { ...one, sendTime: one.sendTime + 1000 * 60 * 60 * 24 * 2 }
+      } else {
+        return { id: item.id, openid: item.openid, sendTime: Date.now() + 1000 * 60 * 60 * 24 * 2 }
+      }
+    })
+    redisMember.length && this.redisService.set('zfxy-send-member', JSON.stringify(redisMember))
+    // 重新设定已发送消息的员工member
+    const redisNote: TSendMemberNote[] = data.menberNotes.map(item => {
+      const one = sendNotes.find(mem => mem.openid === item.openid)
+      if (one) {
+        return dayjs(one.sendTime).isBefore(Date.now()) ? one : { ...one, sendTime: one.sendTime + 1000 * 60 * 60 * 24 * 2 }
+      } else {
+        return { id: item.id, openid: item.openid, sendTime: Date.now() + 1000 * 60 * 60 * 24 * 2 }
+      }
+    })
+    redisNote.length && this.redisService.set('zfxy-send-note', JSON.stringify(redisNote))
+    // 重新设定已发送消息的员工note
     // 给员工发送消息
-    data.menberUsers.forEach(item =>
+    members.forEach(item =>
       this.msgService.message(
         token.access,
         item.openid,
@@ -41,7 +87,7 @@ export class DataSyncCheckerJob implements IJob {
         `${item.name}：您超过7天未新增客户啦`
       )
     );
-    data.menberNotes.forEach(item =>
+    notes.forEach(item =>
       this.msgService.message(
         token.access,
         item.openid,
@@ -50,7 +96,7 @@ export class DataSyncCheckerJob implements IJob {
       )
     );
     // 给管理员发消息
-    if (data.menberUsers.length) {
+    if (members.length) {
       data.admins.forEach(ad =>
         this.msgService.message(
           token.access,
@@ -60,7 +106,7 @@ export class DataSyncCheckerJob implements IJob {
         )
       );
     }
-    if (data.menberNotes.length) {
+    if (notes.length) {
       data.admins.forEach(ad =>
         this.msgService.message(
           token.access,

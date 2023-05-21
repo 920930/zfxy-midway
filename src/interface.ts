@@ -63,3 +63,5 @@ export interface IMessage {
     color?: string;
   };
 }
+
+export type TSendMemberNote = Pick<TRedisInfo, 'id' | 'openid'> & { sendTime: number };

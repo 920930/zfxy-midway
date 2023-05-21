@@ -82,7 +82,7 @@ export class User extends Model {
   @CreatedAt
   @Column({
     get() {
-      return dayjs(this.getDataValue('createdAt')).format('YYYY-MM-DD')
+      return dayjs(this.getDataValue('createdAt')).format('YYYY-MM-DD HH:mm')
     }
   })
   createdAt: Date;

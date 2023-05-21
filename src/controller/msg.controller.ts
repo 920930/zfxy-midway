@@ -1,7 +1,7 @@
 import { Inject, Controller, Get } from '@midwayjs/core';
 import { MsgService } from '../service/msg.service';
 
-@Controller('/msg')
+@Controller('/api/msg')
 export class MsgController {
   @Inject()
   msgService: MsgService;
