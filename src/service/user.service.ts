@@ -9,6 +9,7 @@ import type { ISearch } from '../interface';
 import { Market } from '../entity/market';
 import { CustomHttpError } from '../error/custom.error';
 import { MsgService } from './msg.service';
+import { Note } from '../entity/note';
 
 @Provide()
 export class UserService {
@@ -111,5 +112,12 @@ export class UserService {
     );
     await User.update({ adminerId: toAid }, { where: { id } });
     return 'ok';
+  }
+
+  async oneExcel(id: number) {
+    return User.findOne({
+      where: { id },
+      include: { model: Note }
+    })
   }
 }

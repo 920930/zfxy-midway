@@ -53,4 +53,11 @@ export class UserController {
   async del(@Param('id') id: number) {
     console.log(id)
   }
+
+  @Get('/:id/excel')
+  async oneExcel(@Param('id') id: number) {
+    const adminer = this.ctx.adminer;
+    if (adminer.roleId == 3) throw new CustomHttpError('您没有权限')
+    return this.userService.oneExcel(id);
+  }
 }

@@ -24,13 +24,13 @@ export class NoteController {
 
   @Put('/:id')
   async edit(@Param('id') id: number, @Body('content') content: string) {
-    if (content.length < 5) throw new CustomHttpError('内容不能为空')
+    if (content.length < 5) throw new CustomHttpError('内容不能少于5个字符')
     return this.noteService.edit(id, content);
   }
 
   @Post('/store')
   async store(@Body() info: { content: string; userId: number; adminerId: number }) {
-    if (info.content.length < 5) throw new CustomHttpError('内容不能为空')
+    if (info.content.length < 5) throw new CustomHttpError('内容不能少于5个字符')
     info.adminerId = this.ctx.adminer.id
     return this.noteService.store(info);
   }

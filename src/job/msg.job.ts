@@ -8,8 +8,8 @@ import { getJsApiTicket, getAccessToken } from '../utils/wechat';
 import * as dayjs from 'dayjs';
 
 @Job({
-  // cronTime: FORMAT.CRONTAB.EVERY_HOUR,
-  cronTime: FORMAT.CRONTAB.EVERY_PER_5_SECOND,
+  cronTime: FORMAT.CRONTAB.EVERY_HOUR,
+  // cronTime: FORMAT.CRONTAB.EVERY_PER_5_SECOND,
   start: true,
 })
 export class DataSyncCheckerJob implements IJob {
