@@ -7,10 +7,9 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
   resolve() {
     return async (ctx: Context, next: NextFunction) => {
       const result = await next();
-      // if(ctx.path === '/login') {
-      //   console.log(result)
-      //   return result
-      // }
+      if (ctx.path.includes('/api/excel')) {
+        return result
+      }
       return {
         code: 200,
         msg: 'OK',

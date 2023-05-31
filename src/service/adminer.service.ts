@@ -85,6 +85,7 @@ export class AdminerService {
       if (me.roleId == 3 && me.id !== Number.parseInt(uid)) throw new CustomHttpError('您没有权限')
       if (me.roleId == 2 && (data.roleId != 3)) throw new CustomHttpError('您没有权限')
     }
+    if (data.password.length < 6) throw new CustomHttpError('密码长度不少于6')
     if (data.password && data.password != data.passwordConfig) throw new CustomHttpError('两次密码不一致')
     if (!/^1[3-9]\d{9}$/.test(data.phone)) throw new CustomHttpError('手机号不正确')
   }

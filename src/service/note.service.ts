@@ -48,7 +48,7 @@ export class NoteService {
 
   async store(info: { content: string; userId: number; adminerId: number }) {
     // 群发消息
-    this.msgService.send(info);
+    this.msgService.send({ ...info, from: 'addNote' });
     return Note.create(info);
   }
 

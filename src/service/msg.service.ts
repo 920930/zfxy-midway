@@ -64,7 +64,6 @@ export class MsgService {
         value: msg2,
       },
     };
-    console.log(datas)
     sendMessage(
       {
         access_token: access,
@@ -76,7 +75,7 @@ export class MsgService {
   }
 
   // sendMessage
-  async send(info: { userId: number; adminerId: number; content: string }) {
+  async send(info: { userId: number; adminerId: number; content: string; from: 'addUser' | 'addNote'; }) {
     const adminers = await Adminer.findAll({
       where: { state: true, roleId: { [Op.in]: [1, 2] } },
       attributes: ['id', 'name', 'openid'],
@@ -94,7 +93,7 @@ export class MsgService {
         value: user.phone,
       },
       keyword3: {
-        value: `${formAd.name}：${info.content}`,
+        value: `${formAd.name}${info.from === 'addUser' ? '新增' : '跟进'}：${info.content}`,
       },
     };
     adminers.forEach(item =>
