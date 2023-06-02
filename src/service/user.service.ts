@@ -9,7 +9,6 @@ import type { ISearch } from '../interface';
 import { Market } from '../entity/market';
 import { CustomHttpError } from '../error/custom.error';
 import { MsgService } from './msg.service';
-import { Note } from '../entity/note';
 
 @Provide()
 export class UserService {
@@ -115,28 +114,10 @@ export class UserService {
     return 'ok';
   }
 
-  async oneExcel(id: number) {
-    const user = await User.findOne({
-      where: { id },
-      attributes: ['name', 'phone', 'sex', 'address']
-    })
-    const notes = await Note.findAndCountAll({
-      where: { userId: id },
-      attributes: ['content', 'createdAt'],
-      limit: 1000,
-      offset: 0,
-      order: [['createdAt', 'DESC']],
-      include: [
-        { model: Adminer, attributes: ['name'] }
-      ]
-    })
-
-    // const notes = user.notes
-    let data = notes.rows.map(item => [item.adminer.name, item.createdAt, item.content]);
-    data = [[`客户:${user.name}-${user.phone}`, user.sex ? '女' : '男', user.address], ['员工', '跟踪日期', '跟踪内容'], ...data]
+  async toExcel(id: string, type: string) {
     const code = Math.random().toString(16).slice(2);
     // 设置过期时间，单位秒
-    this.redisService.set(`zfxy-excel-${code}`, JSON.stringify(data), 'EX', 60)
-    return { code, count: notes.count }
+    this.redisService.set(`zfxy-excel-${code}`, JSON.stringify({ id, type }), 'EX', 60)
+    return { code }
   }
 }

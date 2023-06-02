@@ -87,13 +87,13 @@ export class MsgService {
     const datas: IMessage = {
       url: this.app.getConfig('koa.web') + '/user/' + info.userId,
       keyword1: {
-        value: user.name,
+        value: `${user.name}(${formAd.name}-${info.from === 'addUser' ? '新增' : '跟进'})`,
       },
       keyword2: {
         value: user.phone,
       },
       keyword3: {
-        value: `${formAd.name}${info.from === 'addUser' ? '新增' : '跟进'}：${info.content}`,
+        value: info.content,
       },
     };
     adminers.forEach(item =>
