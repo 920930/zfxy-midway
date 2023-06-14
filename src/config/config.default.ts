@@ -11,8 +11,8 @@ export default {
   keys: '1680167318186_2690',
   koa: {
     port: 7001,
-    web: 'http://192.168.2.106:5173',
-    server: 'http://192.168.2.106:7001',
+    web: 'http://192.168.2.108:5173',
+    server: 'http://192.168.2.108:7001',
   },
   wechat: {
     appid: 'wx7e998d6d465a5e90',

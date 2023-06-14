@@ -22,8 +22,18 @@ export class MsgService {
       where: { state: true },
       attributes: ['id', 'name', 'openid', 'roleId'],
       include: [
-        { model: User, attributes: ['id', 'createdAt'], limit: 1, order: [['createdAt', 'DESC']] },
-        { model: Note, attributes: ['id', 'createdAt'], limit: 1, order: [['createdAt', 'DESC']] },
+        {
+          model: User,
+          attributes: ['id', 'createdAt'],
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+        },
+        {
+          model: Note,
+          attributes: ['id', 'createdAt'],
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+        },
       ],
     });
     // 员工列表
@@ -33,7 +43,7 @@ export class MsgService {
     // 逾期未新增用户的员工
     const menberUsers = members.filter(item => {
       if (item.users.length) {
-        return dayjs(item.users[0].createdAt).add(7, 'day').isBefore(dayjs())
+        return dayjs(item.users[0].createdAt).add(7, 'day').isBefore(dayjs());
       } else {
         return true;
       }
@@ -41,7 +51,7 @@ export class MsgService {
     // 逾期未追踪用户的员工
     const menberNotes = members.filter(item => {
       if (item.notes.length) {
-        return dayjs(item.notes[0].createdAt).add(3, 'day').isBefore(dayjs())
+        return dayjs(item.notes[0].createdAt).add(3, 'day').isBefore(dayjs());
       } else {
         return true;
       }
@@ -75,7 +85,12 @@ export class MsgService {
   }
 
   // sendMessage
-  async send(info: { userId: number; adminerId: number; content: string; from: 'addUser' | 'addNote'; }) {
+  async send(info: {
+    userId: number;
+    adminerId: number;
+    content: string;
+    from: 'addUser' | 'addNote';
+  }) {
     const adminers = await Adminer.findAll({
       where: { state: true, roleId: { [Op.in]: [1, 2] } },
       attributes: ['id', 'name', 'openid'],
@@ -87,7 +102,9 @@ export class MsgService {
     const datas: IMessage = {
       url: this.app.getConfig('koa.web') + '/user/' + info.userId,
       keyword1: {
-        value: `${user.name}(${formAd.name}-${info.from === 'addUser' ? '新增' : '跟进'})`,
+        value: `${user.name}(${formAd.name}-${
+          info.from === 'addUser' ? '新增' : '跟进'
+        })`,
       },
       keyword2: {
         value: user.phone,
